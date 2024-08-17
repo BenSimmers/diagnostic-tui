@@ -14,3 +14,9 @@ clean:
 
 run: $(TARGET)
 	./$(TARGET)
+
+to-asm:
+	$(CC) $(CFLAGS) -S $(SRC)
+
+run-asm: $(TARGET)
+	./$(TARGET)

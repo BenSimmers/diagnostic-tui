@@ -145,7 +145,7 @@ int main()
     nodelay(stdscr, TRUE);
 
     init_colors();
-    WINDOW *win = newwin(0, 0, 0, 0); 
+    WINDOW *win = newwin(0, 0, 0, 0);
     box(win, 0, 0);
 
     while (1)
