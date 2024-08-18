@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <ncurses.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -9,6 +10,7 @@
 #include <net/if.h>
 #include <net/if_dl.h>
 #include <time.h>
+#include <sys/utsname.h>
 
 void init_colors()
 {
@@ -136,6 +138,57 @@ void print_system_uptime(WINDOW *win)
     mvwprintw(win, 9, 2, "System Uptime: %d days, %d hours, %d minutes", days, hours, minutes);
 }
 
+void print_uname(WINDOW *win)
+{
+    struct utsname uts;
+    if (uname(&uts) == 0)
+    {
+        mvwprintw(win, 11, 2, "System Name: %s %s, %s", uts.sysname, uts.nodename, uts.release);
+        mvwprintw(win, 12, 2, "Version: %s", uts.version);
+        mvwprintw(win, 13, 2, "Machine: %s", uts.machine);
+    }
+    else
+    {
+        mvwprintw(win, 11, 2, "Failed to get system information");
+    }
+}
+
+void printProcessesAndThreads(WINDOW *win)
+{
+    int processes = 0;
+    int threads = 0;
+    FILE *fp = popen("ps -A | wc -l", "r");
+    if (fp != NULL)
+    {
+        fscanf(fp, "%d", &processes);
+        pclose(fp);
+    }
+
+    FILE *fp2 = popen("ps -A -L | wc -l", "r");
+    if (fp2 != NULL)
+    {
+        fscanf(fp2, "%d", &threads);
+        pclose(fp2);
+    }
+
+    mvwprintw(win, 17, 2, "Processes: %d", processes);
+    mvwprintw(win, 18, 2, "Threads: %d", threads);
+}
+
+void print_battery_life(WINDOW *win)
+{
+    int battery_life = 0;
+    FILE *fp = popen("pmset -g batt | grep -o '[0-9]*%'", "r");
+    if (fp != NULL)
+    {
+        fscanf(fp, "%d", &battery_life);
+        pclose(fp);
+    }
+
+    mvwprintw(win, 15, 2, "Battery Life: %d%%", battery_life);
+}
+
+
 int main()
 {
     initscr();
@@ -153,11 +206,14 @@ int main()
         werase(win);
         box(win, 0, 0);
 
+        print_battery_life(win);
         print_cpu_usage(win);
+        print_uname(win);
         print_memory_usage(win);
         print_disk_usage(win);
         print_network_usage(win);
         print_system_uptime(win);
+        printProcessesAndThreads(win);
 
         wrefresh(win);
 
