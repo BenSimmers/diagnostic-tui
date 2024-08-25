@@ -22,6 +22,9 @@ $(OBJDIR):
 $(BINDIR):
 	mkdir -p $(BINDIR)
 
+run:
+	$(BINDIR)/sys_monitor
+
 clean:
 	rm -rf $(OBJDIR) $(BINDIR)
 
