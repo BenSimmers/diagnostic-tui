@@ -2,6 +2,9 @@
 
 simple TUI to see some system diagnostics
 
+## Warning
+This program was built for ARM64 based M series Macs, therefore it is using certain libraries which are not available on other systems. (fixes are in progress)
+
 ## Installation
 
 ```bash
