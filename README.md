@@ -11,23 +11,24 @@ git clone https://github.com/BenSimmers/diagnostic-tui.git
 - Use the Makefile to build and run the program
 
 ```bash
-make all # builds the program
+# build the program
+make
+```
+
+
+```bash
+# run the program
+./bin/sys_monitor
+
+# or 
+arch -arm64 ./bin/sys_monitor   # Run as ARM64
+# or (if rosetta is installed)
+arch -x86_64 ./bin/sys_monitor  # Run as x86_64 (if you have Rosetta installed)
 ```
 
 ```bash
-make run # runs the program
+# clean the program
+make clean
 ```
 
-```bash
-make clean # cleans the program
-```
 
-- Use the Makefile to compile the program to raw assembly
-
-```bash
-make to-asm # compiles the program to inspect the raw assembly
-```
-
-```bash
-make run-asm # runs the raw assembly
-```
