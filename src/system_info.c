@@ -11,7 +11,7 @@
 #include <sys/utsname.h>
 #include <stdlib.h>
 
-void print_cpu_usage(WINDOW *win) {
+void print_cpu_usage(WINDOW *win, int start_y, int start_x) {
     host_cpu_load_info_data_t cpuinfo;
     mach_msg_type_number_t count = HOST_CPU_LOAD_INFO_COUNT;
     kern_return_t status = host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO, (host_info_t)&cpuinfo, &count);
@@ -27,14 +27,14 @@ void print_cpu_usage(WINDOW *win) {
 
         int color_pair = (cpu_usage > 75.0) ? 1 : 2;
         wattron(win, COLOR_PAIR(color_pair));
-        mvwprintw(win, 1, 2, "CPU Usage: %.2f%%", cpu_usage);
+        mvwprintw(win, start_y, start_x, "CPU Usage: %.2f%%", cpu_usage);
         wattroff(win, COLOR_PAIR(color_pair));
     } else {
-        mvwprintw(win, 1, 2, "Failed to get CPU usage");
+        mvwprintw(win, start_y, start_x, "Failed to get CPU usage");
     }
 }
 
-void print_memory_usage(WINDOW *win) {
+void print_memory_usage(WINDOW *win, int start_y, int start_x) {
     int64_t total_memory;
     size_t length = sizeof(total_memory);
     sysctlbyname("hw.memsize", &total_memory, &length, NULL, 0);
@@ -50,25 +50,25 @@ void print_memory_usage(WINDOW *win) {
     int64_t free_memory = vm_stat.free_count * page_size;
     int64_t used_memory = total_memory - free_memory;
 
-    mvwprintw(win, 3, 2, "Memory Usage: %lld MB used / %lld MB total", 
-              used_memory / (1024 * 1024), total_memory / (1024 * 1024));
+    mvwprintw(win, start_y, start_x, "Memory Usage: %llu MB used / %llu MB free", 
+              used_memory / (1024 * 1024), free_memory / (1024 * 1024));
 }
 
-void print_disk_usage(WINDOW *win) {
+void print_disk_usage(WINDOW *win, int start_y, int start_x) {
     struct statfs stats;
     if (statfs("/", &stats) == 0) {
         unsigned long long total = stats.f_blocks * stats.f_bsize;
         unsigned long long free = stats.f_bfree * stats.f_bsize;
         unsigned long long used = total - free;
 
-        mvwprintw(win, 5, 2, "Disk Usage: %llu MB used / %llu MB free", 
+        mvwprintw(win, start_y, start_x, "Disk Usage: %llu MB used / %llu MB free", 
                   used / (1024 * 1024), free / (1024 * 1024));
     } else {
-        mvwprintw(win, 5, 2, "Failed to get disk usage");
+        mvwprintw(win, start_y, start_x, "Failed to get disk usage");
     }
 }
 
-void print_network_usage(WINDOW *win) {
+void print_network_usage(WINDOW *win, int start_y, int start_x) {
     struct ifaddrs *ifaddr, *ifa;
     if (getifaddrs(&ifaddr) == -1) {
         mvwprintw(win, 7, 2, "Failed to get network usage");
@@ -80,7 +80,7 @@ void print_network_usage(WINDOW *win) {
 
         if (ifa->ifa_addr->sa_family == AF_LINK) {
             struct if_data *if_data = (struct if_data *)ifa->ifa_data;
-            mvwprintw(win, 7, 2, "Network Usage: %llu bytes sent / %llu bytes received",
+            mvwprintw(win, start_y, start_x, "Network Usage: %llu bytes sent / %llu bytes received",
                       if_data->ifi_obytes, if_data->ifi_ibytes);
             break;
         }
@@ -89,7 +89,7 @@ void print_network_usage(WINDOW *win) {
     freeifaddrs(ifaddr);
 }
 
-void print_system_uptime(WINDOW *win) {
+void print_system_uptime(WINDOW *win, int start_y, int start_x) {
     struct timespec ts;
     size_t len = sizeof(ts);
     sysctlbyname("kern.boottime", &ts, &len, NULL, 0);
@@ -104,21 +104,21 @@ void print_system_uptime(WINDOW *win) {
     uptime %= (60 * 60);
     int minutes = uptime / 60;
 
-    mvwprintw(win, 9, 2, "System Uptime: %d days, %d hours, %d minutes", days, hours, minutes);
+    mvwprintw(win, start_y, start_x, "System Uptime: %d days, %d hours, %d minutes", days, hours, minutes);
 }
 
-void print_uname(WINDOW *win) {
+void print_uname(WINDOW *win, int start_y, int start_x) {
     struct utsname uts;
     if (uname(&uts) == 0) {
-        mvwprintw(win, 11, 2, "System Name: %s %s, %s", uts.sysname, uts.nodename, uts.release);
-        mvwprintw(win, 12, 2, "Version: %s", uts.version);
-        mvwprintw(win, 13, 2, "Machine: %s", uts.machine);
+        mvwprintw(win, start_y, start_x, "System: %s %s", uts.sysname, uts.release);
+        mvwprintw(win, start_y + 1, start_x, "Version: %s", uts.version);
+        mvwprintw(win, start_y + 2, start_x, "Machine: %s", uts.machine);
     } else {
-        mvwprintw(win, 11, 2, "Failed to get system information");
+        mvwprintw(win, start_y, start_x, "Failed to get system information");
     }
 }
 
-void print_processes_and_threads(WINDOW *win) {
+void print_processes_and_threads(WINDOW *win, int start_y, int start_x) {
     int processes = 0;
     int threads = 0;
 
@@ -134,11 +134,12 @@ void print_processes_and_threads(WINDOW *win) {
         pclose(fp2);
     }
 
-    mvwprintw(win, 17, 2, "Processes: %d", processes);
-    mvwprintw(win, 18, 2, "Threads: %d", threads);
+    mvwprintw(win, start_y, start_x, "Processes: %d", processes);
+    mvwprintw(win, start_y + 1, start_x, "Threads: %d", threads);
+
 }
 
-void print_battery_life(WINDOW *win) {
+void print_battery_life(WINDOW *win, int start_y, int start_x) {
     int battery_life = 0;
     FILE *fp = popen("pmset -g batt | grep -o '[0-9]*%'", "r");
     if (fp != NULL) {
@@ -146,5 +147,79 @@ void print_battery_life(WINDOW *win) {
         pclose(fp);
     }
 
-    mvwprintw(win, 15, 2, "Battery Life: %d%%", battery_life);
+    mvwprintw(win, start_y, start_x, "Battery Life: %d%%", battery_life);
+}
+
+double get_cpu_usage() {
+    host_cpu_load_info_data_t cpuinfo;
+    mach_msg_type_number_t count = HOST_CPU_LOAD_INFO_COUNT;
+    kern_return_t status = host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO, (host_info_t)&cpuinfo, &count);
+
+    if (status == KERN_SUCCESS) {
+        long total_ticks = 0;
+        for (int i = 0; i < CPU_STATE_MAX; i++) {
+            total_ticks += cpuinfo.cpu_ticks[i];
+        }
+
+        double idle_ticks = cpuinfo.cpu_ticks[CPU_STATE_IDLE];
+        return 100.0 * (1.0 - (idle_ticks / total_ticks));
+    } else {
+        return 0.0;  // Handle error appropriately
+    }
+}
+
+double get_battery_life() {
+    int battery_life = 0;
+    FILE *fp = popen("pmset -g batt | grep -o '[0-9]*%'", "r");
+    if (fp != NULL) {
+        fscanf(fp, "%d", &battery_life);
+        pclose(fp);
+    }
+
+    return battery_life;
+}
+
+void draw_battery_life_bar(WINDOW *win, int start_y, int start_x, int width) {
+    double battery_life = get_battery_life();
+    int filled_length = (battery_life / 100.0) * width;
+
+    int color_pair;
+    if (battery_life > 50.0) {
+        color_pair = 1;  // Green
+    } else if (battery_life > 25.0) {
+        color_pair = 2;  // Yellow
+    } else {
+        color_pair = 3;  // Red
+    }
+
+    wattron(win, COLOR_PAIR(color_pair));
+    mvwprintw(win, start_y, start_x, "[");
+    for (int i = 0; i < filled_length; ++i) {
+        mvwaddch(win, start_y, start_x + 1 + i, ACS_BLOCK);
+    }
+    mvwprintw(win, start_y, start_x + width + 1, "] %d%%", (int)battery_life);
+    wattroff(win, COLOR_PAIR(color_pair));
+}
+
+
+void draw_cpu_usage_bar(WINDOW *win, int start_y, int start_x, int width) {
+    double cpu_usage = get_cpu_usage();
+    int filled_length = (cpu_usage / 100.0) * width;
+
+    int color_pair;
+    if (cpu_usage < 50.0) {
+        color_pair = 1;  // Green
+    } else if (cpu_usage < 75.0) {
+        color_pair = 2;  // Yellow
+    } else {
+        color_pair = 3;  // Red
+    }
+
+    wattron(win, COLOR_PAIR(color_pair));
+    mvwprintw(win, start_y, start_x, "[");
+    for (int i = 0; i < filled_length; ++i) {
+        mvwaddch(win, start_y, start_x + 1 + i, ACS_BLOCK);
+    }
+    mvwprintw(win, start_y, start_x + width + 1, "] %.2f%%", cpu_usage);
+    wattroff(win, COLOR_PAIR(color_pair));
 }
