@@ -4,20 +4,8 @@
 
 #define BAR_WIDTH 50
 
-
-// print_battery_life(win, 2, 2);
-// print_cpu_usage(win, 3, 2);
-// print_uname(win, 4, 2);
-// print_memory_usage(win, 7, 2);
-// print_disk_usage(win, 8, 2);
-// print_network_usage(win, 9, 2);
-// print_system_uptime(win, 10, 2);
-// print_processes_and_threads(win, 11, 2);
-
-
-// Grid dimensions and offsets
 const int ROW_HEIGHT = 1;
-const int COLUMN_WIDTH = 30; // You can adjust the width to suit your needs
+const int COLUMN_WIDTH = 30;
 const int X_OFFSET = 2;
 const int Y_OFFSET = 2;
 
@@ -44,6 +32,12 @@ void update_window(WINDOW *win) {
     place_content(win, 0, 1, print_cpu_usage);
     place_content(win, 1, 0, draw_battery_life_bar);
     place_content(win, 2, 0, draw_cpu_usage_bar);
+    place_content(win, 3, 0, print_uname);
+    place_content(win, 4, 0, print_memory_usage);
+    place_content(win, 5, 0, print_disk_usage);
+    place_content(win, 6, 0, print_network_usage);
+    place_content(win, 7, 0, print_system_uptime);
+    place_content(win, 8, 0, print_processes_and_threads);
 
     wrefresh(win);
 }
