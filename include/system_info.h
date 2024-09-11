@@ -16,5 +16,4 @@ void draw_cpu_usage_bar(WINDOW *win, int start_y, int start_x, int width);
 double get_battery_life();
 void draw_battery_life_bar(WINDOW *win, int start_y, int start_x, int width);
 
-
 #endif // SYSTEM_INFO_H
