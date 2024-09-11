@@ -9,13 +9,13 @@
 
 #ifdef __APPLE__
 #include <mach/mach.h>
-// #include <sys/statfs.h>
 #include <sys/sysctl.h>
 #include <net/if_dl.h>
 #include <net/if.h>
 #elif __linux__
 #include <sys/sysinfo.h>
 #include <string.h>
+#include <sys/statfs.h>
 #include <unistd.h>
 #endif
 
