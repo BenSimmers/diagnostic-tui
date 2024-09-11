@@ -121,18 +121,6 @@ void print_memory_usage(WINDOW *win, int start_y, int start_x)
 
 void print_disk_usage(WINDOW *win, int start_y, int start_x)
 {
-    // struct statfs stats;
-    // if (statfs("/", &stats) == 0) {
-    //     unsigned long long total = stats.f_blocks * stats.f_bsize;
-    //     unsigned long long free = stats.f_bfree * stats.f_bsize;
-    //     unsigned long long used = total - free;
-
-    //     mvwprintw(win, start_y, start_x, "Disk Usage: %llu MB used / %llu MB free",
-    //               used / (1024 * 1024), free / (1024 * 1024));
-    // } else {
-    //     mvwprintw(win, start_y, start_x, "Failed to get disk usage");
-    // }
-
 #ifdef __APPLE__
     FILE *fp = popen("df -h / | tail -n 1 | awk '{print $3, $4}'", "r");
     if (fp != NULL)
