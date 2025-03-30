@@ -1,0 +1,33 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up dependencies
+      run: sudo apt-get update && sudo apt-get install -y build-essential libncurses5-dev libncursesw5-dev
+
+    - name: Build the project
+      run: make
+
+    - name: Run the application (headless test)
+      run: |
+        echo "Running the application to ensure it works"
+        ./bin/sys_monitor &
+        sleep 2
+        pkill sys_monitor
+
+    - name: Clean up build artifacts
+      run: make clean
