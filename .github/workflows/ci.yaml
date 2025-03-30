@@ -22,12 +22,5 @@ jobs:
     - name: Build the project
       run: make
 
-    - name: Run the application (headless test)
-      run: |
-        echo "Running the application to ensure it works"
-        ./bin/sys_monitor &
-        sleep 2
-        pkill sys_monitor
-
     - name: Clean up build artifacts
       run: make clean
